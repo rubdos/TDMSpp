@@ -67,6 +67,11 @@ void TDMS_file::_parse_segments()
     }
 }
 
+const TDMS_object* TDMS_file::operator[](const std::string& key)
+{
+    return _objects.at(key);
+}
+
 TDMS_file::~TDMS_file()
 {
     for(TDMS_segment* _s : _segments)

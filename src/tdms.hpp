@@ -81,6 +81,11 @@ class TDMS_object
     friend class TDMS_file;
     friend class TDMS_segment;
     friend class TDMS_segment_object;
+public:
+    const std::string get_path()
+    {
+        return _path;
+    }
 private:
     TDMS_object(const std::string& path)
         : _path(path)
@@ -130,6 +135,40 @@ class TDMS_file
 public:
     TDMS_file(const std::string& filename);
     virtual ~TDMS_file();
+
+    const TDMS_object* operator[](const std::string& key);
+    class iterator
+    {
+        friend class TDMS_file;
+    public:
+        TDMS_object* operator*()
+        {
+            return _it->second;
+        }
+        const iterator& operator++()
+        {
+            ++_it;
+
+            return *this;
+        }
+        bool operator !=(const iterator& other)
+        {
+            return other._it != _it;
+        }
+    private:
+        iterator(std::map<std::string, TDMS_object*>::iterator it)
+            : _it(it)
+        {}
+        std::map<std::string, TDMS_object*>::iterator _it;
+    };
+    iterator begin()
+    {
+        return iterator(_objects.begin());
+    }
+    iterator end()
+    {
+        return iterator(_objects.end());
+    }
 private:
 
     void _parse_segments();

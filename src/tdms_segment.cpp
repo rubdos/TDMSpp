@@ -118,9 +118,6 @@ TDMS_segment::TDMS_segment(const unsigned char* contents,
     this->_raw_data_offset = raw_data_offset + 7*4;
 
     _parse_metadata(contents, previous_segment);
-
-    // Prevent memoryleak, get rid of the pointer
-    _data = nullptr;
 }
 
 void TDMS_segment::_parse_metadata(const unsigned char* data, 
@@ -285,6 +282,7 @@ void TDMS_segment::_parse_raw_data()
         if(this->_toc["kTocInterleavedData"])
         {
             log::debug << "Data is interleaved" << log::endl;
+            throw std::runtime_error("Reading inteleaved data not supported yet");
         }
         else
         {

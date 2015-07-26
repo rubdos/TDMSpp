@@ -52,5 +52,9 @@ int main(int argc, char** argv)
         if(_filenames.size() > 1)
             std::cout << filename << ":" << std::endl;
         TDMS_file f(filename);
+        for(TDMS_object* o : f)
+        {
+            std::cout << o->get_path() << std::endl;
+        }
     }
 }
