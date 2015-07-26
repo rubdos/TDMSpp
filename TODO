@@ -1,0 +1,2 @@
+$ grep -R TODO src # lists todo's
+Implement reverse memmap as in npTDMS
