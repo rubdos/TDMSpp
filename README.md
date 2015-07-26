@@ -4,7 +4,7 @@ TDMSpp
 Cross-platform module for reading TDMS files as produced by LabView.
 
 It is written for speeding up [npTDMS](https://github.com/adamreeve/npTDMS).
-For more information, see the `npTDMS documentation <http://readthedocs.org/docs/nptdms>`__.
+For more information, see the [npTDMS documentation](http://readthedocs.org/docs/nptdms).
 
 Installation/usage
 ------------------
