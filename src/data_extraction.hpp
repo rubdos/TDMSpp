@@ -3,6 +3,9 @@
 #include <string>
 #include "log.hpp"
 
+namespace TDMS
+{
+
 template<typename T>
 T read_le(const unsigned char* p)
 {
@@ -14,7 +17,7 @@ T read_le(const unsigned char* p)
     return sum;
 }
 
-time_t read_tdms_timestamp(const unsigned char* p)
+time_t read_timestamp(const unsigned char* p)
 {
     // TODO: implement
     time_t result = time(NULL);
@@ -39,4 +42,5 @@ double read_le_double(const unsigned char* p)
     }
     //log::debug << "I read a double: " << a << log::endl;
     return a;
+}
 }

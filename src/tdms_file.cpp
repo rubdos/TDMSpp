@@ -8,8 +8,10 @@
 #include "log.hpp"
 #include "tdms_impl.hpp"
 
+namespace TDMS
+{
 
-TDMS_file::TDMS_file(const std::string& filename)
+file::file(const std::string& filename)
 {
     // Read file into memory
     FILE* f = fopen(filename.c_str(), "r");
@@ -37,21 +39,21 @@ TDMS_file::TDMS_file(const std::string& filename)
     free(file_contents);
 }
 
-void TDMS_file::_parse_segments()
+void file::_parse_segments()
 {
     size_t offset = 0;
-    TDMS_segment* prev = nullptr;
+    segment* prev = nullptr;
     // First read the metadata of the segments
     while(offset < file_contents_size - 8*4)
     {
         try
         {
-            TDMS_segment* s = new TDMS_segment(file_contents + offset, prev, this);
+            segment* s = new segment(file_contents + offset, prev, this);
             offset += s->_next_segment_offset;
             _segments.push_back(s);
             prev = s;
         }
-        catch(TDMS_segment::no_segment_error& e)
+        catch(segment::no_segment_error& e)
         {
             // Last segment was parsed.
             break;
@@ -67,20 +69,20 @@ void TDMS_file::_parse_segments()
     }
 }
 
-const TDMS_object* TDMS_file::operator[](const std::string& key)
+const object* file::operator[](const std::string& key)
 {
     return _objects.at(key);
 }
 
-TDMS_file::~TDMS_file()
+file::~file()
 {
-    for(TDMS_segment* _s : _segments)
+    for(segment* _s : _segments)
         delete _s;
     for(auto _o : _objects)
         delete _o.second;
 }
 
-void TDMS_object::_initialise_data()
+void object::_initialise_data()
 {
     if(_number_values == 0)
         return;
@@ -90,7 +92,7 @@ void TDMS_object::_initialise_data()
     this->_data_insert_position = 0;
 }
 
-TDMS_object::property::~property()
+object::property::~property()
 {
     if(value == nullptr) 
     {
@@ -106,4 +108,5 @@ TDMS_object::property::~property()
         free(value);
     }
     value = nullptr;
+}
 }

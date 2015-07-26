@@ -2,6 +2,9 @@
 
 #include <iostream>
 
+namespace TDMS
+{
+
 class log
 {
 public:
@@ -23,4 +26,4 @@ public:
     }
     bool debug_mode;
 };
-
+}

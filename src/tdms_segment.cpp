@@ -11,7 +11,10 @@
 #include "log.hpp"
 #include "data_extraction.hpp"
 
-const std::map<const std::string, int32_t> TDMS_segment::_toc_properties =
+namespace TDMS
+{
+
+const std::map<const std::string, int32_t> segment::_toc_properties =
 {
     {"kTocMetaData", int32_t(1) << 1},
     {"kTocRawData", int32_t(1) << 3},
@@ -40,45 +43,45 @@ inline std::function<void* (const unsigned char*, void*)> put_le_on_heap_generat
 
 std::function<void* (const unsigned char*, void*)> not_implemented = [](const unsigned char*, void*){return nullptr;};
 
-const std::map<uint32_t, const TDMS_data_type> TDMS_data_type::_tds_datatypes = {
-    {         0, TDMS_data_type("tdsTypeVoid", 0, not_implemented)},
-    {         1, TDMS_data_type("tdsTypeI8",  1, put_le_on_heap_generator<int8_t>())},
-    {         2, TDMS_data_type("tdsTypeI16", 2, put_le_on_heap_generator<int16_t>())},
-    {         3, TDMS_data_type("tdsTypeI32", 4, put_le_on_heap_generator<int32_t>())},
-    {         4, TDMS_data_type("tdsTypeI64", 8, put_le_on_heap_generator<int32_t>())},
-    {         5, TDMS_data_type("tdsTypeU8",  1, put_le_on_heap_generator<uint8_t>())},
-    {         6, TDMS_data_type("tdsTypeU16", 2, put_le_on_heap_generator<uint16_t>())},
-    {         7, TDMS_data_type("tdsTypeU32", 4, put_le_on_heap_generator<uint32_t>())},
-    {         8, TDMS_data_type("tdsTypeU64", 8, put_le_on_heap_generator<uint64_t>())},
-    {         9, TDMS_data_type("tdsTypeSingleFloat", 4, not_implemented)},
-    {        10, TDMS_data_type("tdsTypeDoubleFloat", 8, put_on_heap_generator<double>(&read_le_double))},
-    {        11, TDMS_data_type("tdsTypeExtendedFloat", 0,not_implemented)},
-    {        12, TDMS_data_type("tdsTypeDoubleFloatWithUnit", 8, not_implemented)},
-    {        13, TDMS_data_type("tdsTypeExtendedFloatWithUnit", 0, not_implemented)},
-    {      0x19, TDMS_data_type("tdsTypeSingleFloatWithUnit", 4, not_implemented)},
-    {      0x20, TDMS_data_type("tdsTypeString", 0, not_implemented)},
-    {      0x21, TDMS_data_type("tdsTypeBoolean", 1, not_implemented)},
-    {      0x44, TDMS_data_type("tdsTypeTimeStamp", 16, put_on_heap_generator<time_t>(&read_tdms_timestamp))},
-    {0xFFFFFFFF, TDMS_data_type("tdsTypeDAQmxRawData", 0, not_implemented)}
+const std::map<uint32_t, const data_type_t> data_type_t::_tds_datatypes = {
+    {         0, data_type_t("tdsTypeVoid", 0, not_implemented)},
+    {         1, data_type_t("tdsTypeI8",  1, put_le_on_heap_generator<int8_t>())},
+    {         2, data_type_t("tdsTypeI16", 2, put_le_on_heap_generator<int16_t>())},
+    {         3, data_type_t("tdsTypeI32", 4, put_le_on_heap_generator<int32_t>())},
+    {         4, data_type_t("tdsTypeI64", 8, put_le_on_heap_generator<int32_t>())},
+    {         5, data_type_t("tdsTypeU8",  1, put_le_on_heap_generator<uint8_t>())},
+    {         6, data_type_t("tdsTypeU16", 2, put_le_on_heap_generator<uint16_t>())},
+    {         7, data_type_t("tdsTypeU32", 4, put_le_on_heap_generator<uint32_t>())},
+    {         8, data_type_t("tdsTypeU64", 8, put_le_on_heap_generator<uint64_t>())},
+    {         9, data_type_t("tdsTypeSingleFloat", 4, not_implemented)},
+    {        10, data_type_t("tdsTypeDoubleFloat", 8, put_on_heap_generator<double>(&read_le_double))},
+    {        11, data_type_t("tdsTypeExtendedFloat", 0,not_implemented)},
+    {        12, data_type_t("tdsTypeDoubleFloatWithUnit", 8, not_implemented)},
+    {        13, data_type_t("tdsTypeExtendedFloatWithUnit", 0, not_implemented)},
+    {      0x19, data_type_t("tdsTypeSingleFloatWithUnit", 4, not_implemented)},
+    {      0x20, data_type_t("tdsTypeString", 0, not_implemented)},
+    {      0x21, data_type_t("tdsTypeBoolean", 1, not_implemented)},
+    {      0x44, data_type_t("tdsTypeTimeStamp", 16, put_on_heap_generator<time_t>(&read_timestamp))},
+    {0xFFFFFFFF, data_type_t("tdsTypeDAQmxRawData", 0, not_implemented)}
 };
 
 
-TDMS_segment::TDMS_segment(const unsigned char* contents, 
-        TDMS_segment* previous_segment,
-        TDMS_file* file)
+segment::segment(const unsigned char* contents, 
+        segment* previous_segment,
+        file* file)
     : _parent_file(file)
 {
-    const char* tdms_header = "TDSm";
-    if(memcmp(contents, tdms_header, 4) != 0)
+    const char* header = "TDSm";
+    if(memcmp(contents, header, 4) != 0)
     {
-        throw TDMS_segment::no_segment_error();
+        throw segment::no_segment_error();
     }
     contents += 4;
 
     // First four bytes are toc mask
     int32_t toc_mask = read_le<int32_t>(contents);
     
-    for(auto prop : TDMS_segment::_toc_properties)
+    for(auto prop : segment::_toc_properties)
     {
         _toc[prop.first] = (toc_mask & prop.second) != 0;
         log::debug << "Property " << prop.first << " is " 
@@ -95,7 +98,7 @@ TDMS_segment::TDMS_segment(const unsigned char* contents,
     case 4713:
         break;
     default:
-        std::cerr << "TDMS_segment: unknown version number " << version << std::endl;
+        std::cerr << "segment: unknown version number " << version << std::endl;
         break;
     }
     contents += 4;
@@ -120,8 +123,8 @@ TDMS_segment::TDMS_segment(const unsigned char* contents,
     _parse_metadata(contents, previous_segment);
 }
 
-void TDMS_segment::_parse_metadata(const unsigned char* data, 
-        TDMS_segment* previous_segment)
+void segment::_parse_metadata(const unsigned char* data, 
+        segment* previous_segment)
 {
     if(!this->_toc["kTocMetaData"])
     {
@@ -153,7 +156,7 @@ void TDMS_segment::_parse_metadata(const unsigned char* data,
         data += 4 + object_path.size();
         log::debug << object_path << log::endl;
 
-        TDMS_object* obj = nullptr;
+        TDMS::object* obj = nullptr;
         if(_parent_file->_objects.find(object_path) 
                 != _parent_file->_objects.end())
         {
@@ -161,12 +164,12 @@ void TDMS_segment::_parse_metadata(const unsigned char* data,
         }
         else
         {
-            obj = new TDMS_object(object_path);
+            obj = new TDMS::object(object_path);
             _parent_file->_objects[object_path] = obj;
         }
         bool updating_existing = false;
 
-        TDMS_segment::object* segment_object = nullptr;
+        segment::object* segment_object = nullptr;
 
         if(!_toc["kTocNewObjList"])
         {
@@ -174,7 +177,7 @@ void TDMS_segment::_parse_metadata(const unsigned char* data,
             // segment object list
             auto it = std::find_if(this->_ordered_objects.begin(),
                     this->_ordered_objects.end(),
-                    [obj](const TDMS_segment::object* o){
+                    [obj](const segment::object* o){
                         return (o->_tdms_object == obj);
                         // TODO: compare by value?
                         //       define an operator==() ?
@@ -191,11 +194,11 @@ void TDMS_segment::_parse_metadata(const unsigned char* data,
             if(obj->_previous_segment_object != nullptr)
             {
                 log::debug << "Copying previous segment object" << log::endl;
-                segment_object = new TDMS_segment::object(*obj->_previous_segment_object);
+                segment_object = new segment::object(*obj->_previous_segment_object);
             }
             else
             {
-                segment_object = new TDMS_segment::object(obj);
+                segment_object = new segment::object(obj);
             }
             this->_ordered_objects.push_back(segment_object);
         }
@@ -204,7 +207,7 @@ void TDMS_segment::_parse_metadata(const unsigned char* data,
     }
     _calculate_chuncks();
 }
-void TDMS_segment::_calculate_chuncks()
+void segment::_calculate_chuncks()
 {
     // Work out the number of chunks the data is in, for cases
     // where the meta data doesn't change at all so there is no
@@ -217,7 +220,7 @@ void TDMS_segment::_calculate_chuncks()
     std::for_each(
             _ordered_objects.begin(), 
             _ordered_objects.end(), 
-            [&data_size](TDMS_segment_object* o)
+            [&data_size](segment_object* o)
             {
                 if(o->_has_data)
                 {
@@ -263,7 +266,7 @@ void TDMS_segment::_calculate_chuncks()
     }
 }
 
-void TDMS_segment::_parse_raw_data()
+void segment::_parse_raw_data()
 {
     if(!this->_toc["kTocRawData"])
         return;
@@ -298,7 +301,7 @@ void TDMS_segment::_parse_raw_data()
     }
 }
 
-void TDMS_segment_object::_read_values(const unsigned char*& data, endianness e)
+void segment_object::_read_values(const unsigned char*& data, endianness e)
 {
     if(_data_type.name == "tdstypeString")
     {
@@ -316,17 +319,17 @@ void TDMS_segment_object::_read_values(const unsigned char*& data, endianness e)
     }
 }
 
-TDMS_segment::~TDMS_segment()
+segment::~segment()
 {
     // Delete all TDMS segment objects
-    for(TDMS_segment::object* _o : _ordered_objects)
+    for(segment::object* _o : _ordered_objects)
         delete _o;
 }
 
 
-TDMS_segment_object::TDMS_segment_object(TDMS_object* o)
+segment_object::segment_object(object* o)
     : _tdms_object(o),
-      _data_type(TDMS_data_type::_tds_datatypes.at(0))
+      _data_type(data_type_t::_tds_datatypes.at(0))
 {
     _number_values = 0;
     _data_size = 0;
@@ -335,7 +338,7 @@ TDMS_segment_object::TDMS_segment_object(TDMS_object* o)
     //_dimension = 1;
 }
 
-const unsigned char* TDMS_segment_object::_parse_metadata(const unsigned char* data)
+const unsigned char* segment_object::_parse_metadata(const unsigned char* data)
 {
     // Read object metadata and update object information
     uint32_t raw_data_index = read_le<uint32_t>(data);
@@ -365,7 +368,7 @@ const unsigned char* TDMS_segment_object::_parse_metadata(const unsigned char* d
 
         try
         {
-            _data_type = TDMS_data_type::_tds_datatypes.at(datatype);
+            _data_type = data_type_t::_tds_datatypes.at(datatype);
         }
         catch(std::out_of_range& e)
         {
@@ -415,7 +418,7 @@ const unsigned char* TDMS_segment_object::_parse_metadata(const unsigned char* d
         std::string prop_name = read_string(data);
         data += 4 + prop_name.size();
         // Property data type
-        auto prop_data_type = TDMS_data_type::_tds_datatypes.at(read_le<uint32_t>(data));
+        auto prop_data_type = data_type_t::_tds_datatypes.at(read_le<uint32_t>(data));
         data += 4;
         if(prop_data_type.name == "tdsTypeString")
         {
@@ -423,8 +426,8 @@ const unsigned char* TDMS_segment_object::_parse_metadata(const unsigned char* d
             log::debug << "Property " << prop_name << ": " << *property << log::endl;
             data += 4 + property->size();
             _tdms_object->_properties.emplace(prop_name, 
-                std::unique_ptr<TDMS_object::property>(
-                    new TDMS_object::property(prop_data_type, (void*)property)));
+                std::unique_ptr<object::property>(
+                    new object::property(prop_data_type, (void*)property)));
         }
         else
         {
@@ -435,10 +438,11 @@ const unsigned char* TDMS_segment_object::_parse_metadata(const unsigned char* d
             }
             data += prop_data_type.length;
             _tdms_object->_properties.emplace(prop_name, 
-                std::unique_ptr<TDMS_object::property>(
-                    new TDMS_object::property(prop_data_type, prop_val)));
+                std::unique_ptr<object::property>(
+                    new object::property(prop_data_type, prop_val)));
         }
     }
 
     return data;
+}
 }

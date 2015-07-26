@@ -7,27 +7,30 @@
 #include <cstring>
 #include <memory>
 
-class TDMS_segment;
-class TDMS_segment_object;
+namespace TDMS
+{
 
-class TDMS_data_type
+class segment;
+class segment_object;
+
+class data_type_t
 {
 public:
     typedef std::function<void* ()> parse_t;
-    TDMS_data_type(const TDMS_data_type& dt)
+    data_type_t(const data_type_t& dt)
         : name(dt.name),
           read_to(dt.read_to),
           length(dt.length),
           ctype_length(dt.ctype_length)
     {
     }
-    TDMS_data_type()
+    data_type_t()
         : name("INVALID TYPE"),
           length(0),
           ctype_length(0)
     {
     }
-    TDMS_data_type(const std::string& _name, 
+    data_type_t(const std::string& _name, 
             const size_t _len,
             std::function<void* (const unsigned char*, void*)> reader)
         : name(_name),
@@ -37,7 +40,7 @@ public:
     {
     }
 
-    TDMS_data_type(const std::string& _name, 
+    data_type_t(const std::string& _name, 
             const size_t _len,
             const size_t _ctype_len,
             std::function<void* (const unsigned char*, void*)> reader)
@@ -53,11 +56,11 @@ public:
         return (name != "INVALID TYPE");
     }
 
-    bool operator== (const TDMS_data_type& dt) const
+    bool operator== (const data_type_t& dt) const
     {
         return (name == dt.name);
     }
-    bool operator!= (const TDMS_data_type& dt) const
+    bool operator!= (const data_type_t& dt) const
     {
         return !(*this == dt);
     }
@@ -73,21 +76,21 @@ public:
     size_t length;
     size_t ctype_length;
 
-    static const std::map<uint32_t, const TDMS_data_type> _tds_datatypes;
+    static const std::map<uint32_t, const data_type_t> _tds_datatypes;
 };
 
-class TDMS_object
+class object
 {
-    friend class TDMS_file;
-    friend class TDMS_segment;
-    friend class TDMS_segment_object;
+    friend class file;
+    friend class segment;
+    friend class segment_object;
 public:
     const std::string get_path()
     {
         return _path;
     }
 private:
-    TDMS_object(const std::string& path)
+    object(const std::string& path)
         : _path(path)
     {
         _data = nullptr;
@@ -96,24 +99,24 @@ private:
         _previous_segment_object = nullptr;
     }
     void _initialise_data();
-    TDMS_segment_object* _previous_segment_object;
+    segment_object* _previous_segment_object;
 
     const std::string _path;
     bool _has_data;
 
-    TDMS_data_type _data_type;
+    data_type_t _data_type;
 
     void* _data;
     size_t _data_insert_position;
 
     struct property{
-        property(const TDMS_data_type& dt, void* val)
+        property(const data_type_t& dt, void* val)
             : data_type(dt),
               value(val)
         {
         }
         property(const property& p) = delete;
-        const TDMS_data_type data_type;
+        const data_type_t data_type;
         void* value;
         virtual ~property();
     };
@@ -122,26 +125,26 @@ private:
 
     size_t _number_values;
 
-    ~TDMS_object()
+    ~object()
     {
         if(_data != nullptr)
             free(_data);
     }
 };
 
-class TDMS_file
+class file
 {
-    friend class TDMS_segment;
+    friend class segment;
 public:
-    TDMS_file(const std::string& filename);
-    virtual ~TDMS_file();
+    file(const std::string& filename);
+    virtual ~file();
 
-    const TDMS_object* operator[](const std::string& key);
+    const object* operator[](const std::string& key);
     class iterator
     {
-        friend class TDMS_file;
+        friend class file;
     public:
-        TDMS_object* operator*()
+        object* operator*()
         {
             return _it->second;
         }
@@ -156,10 +159,10 @@ public:
             return other._it != _it;
         }
     private:
-        iterator(std::map<std::string, TDMS_object*>::iterator it)
+        iterator(std::map<std::string, object*>::iterator it)
             : _it(it)
         {}
-        std::map<std::string, TDMS_object*>::iterator _it;
+        std::map<std::string, object*>::iterator _it;
     };
     iterator begin()
     {
@@ -175,7 +178,8 @@ private:
 
     unsigned char* file_contents;
     size_t file_contents_size;
-    std::vector<TDMS_segment*> _segments;
+    std::vector<segment*> _segments;
 
-    std::map<std::string, TDMS_object*> _objects;
+    std::map<std::string, object*> _objects;
 };
+}

@@ -39,7 +39,7 @@ int main(int argc, char** argv)
     }
     if(options[DEBUG])
     {
-        log::debug.debug_mode = true;
+        TDMS::log::debug.debug_mode = true;
     }
 
     std::vector<std::string> _filenames;
@@ -51,8 +51,8 @@ int main(int argc, char** argv)
     {
         if(_filenames.size() > 1)
             std::cout << filename << ":" << std::endl;
-        TDMS_file f(filename);
-        for(TDMS_object* o : f)
+        TDMS::file f(filename);
+        for(TDMS::object* o : f)
         {
             std::cout << o->get_path() << std::endl;
         }
