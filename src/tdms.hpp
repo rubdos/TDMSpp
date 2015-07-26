@@ -116,6 +116,12 @@ private:
     std::map<std::string, std::unique_ptr<property>> _properties;
 
     size_t _number_values;
+
+    ~TDMS_object()
+    {
+        if(_data != nullptr)
+            free(_data);
+    }
 };
 
 class TDMS_file
