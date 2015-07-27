@@ -101,7 +101,7 @@ public:
     {
         return _path;
     }
-    const std::map<std::string, std::shared_ptr<property>> get_properties()
+    const std::map<std::string, std::shared_ptr<property>>& get_properties()
     {
         return _properties;
     }
