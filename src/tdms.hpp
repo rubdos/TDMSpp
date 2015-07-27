@@ -85,9 +85,25 @@ class object
     friend class segment;
     friend class segment_object;
 public:
+    struct property{
+        property(const data_type_t& dt, void* val)
+            : data_type(dt),
+              value(val)
+        {
+        }
+        property(const property& p) = delete;
+        const data_type_t data_type;
+        void* value;
+        virtual ~property();
+    };
+
     const std::string get_path()
     {
         return _path;
+    }
+    const std::map<std::string, std::shared_ptr<property>> get_properties()
+    {
+        return _properties;
     }
 private:
     object(const std::string& path)
@@ -109,19 +125,7 @@ private:
     void* _data;
     size_t _data_insert_position;
 
-    struct property{
-        property(const data_type_t& dt, void* val)
-            : data_type(dt),
-              value(val)
-        {
-        }
-        property(const property& p) = delete;
-        const data_type_t data_type;
-        void* value;
-        virtual ~property();
-    };
-
-    std::map<std::string, std::unique_ptr<property>> _properties;
+    std::map<std::string, std::shared_ptr<property>> _properties;
 
     size_t _number_values;
 

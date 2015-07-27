@@ -426,7 +426,7 @@ const unsigned char* segment_object::_parse_metadata(const unsigned char* data)
             log::debug << "Property " << prop_name << ": " << *property << log::endl;
             data += 4 + property->size();
             _tdms_object->_properties.emplace(prop_name, 
-                std::unique_ptr<object::property>(
+                std::shared_ptr<object::property>(
                     new object::property(prop_data_type, (void*)property)));
         }
         else
@@ -438,7 +438,7 @@ const unsigned char* segment_object::_parse_metadata(const unsigned char* data)
             }
             data += prop_data_type.length;
             _tdms_object->_properties.emplace(prop_name, 
-                std::unique_ptr<object::property>(
+                std::shared_ptr<object::property>(
                     new object::property(prop_data_type, prop_val)));
         }
     }
