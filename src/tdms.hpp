@@ -97,6 +97,16 @@ public:
         virtual ~property();
     };
 
+    const void* data()
+    {
+        return _data;
+    }
+
+    size_t number_values()
+    {
+        return _number_values;
+    }
+
     const std::string get_path()
     {
         return _path;
