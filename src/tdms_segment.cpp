@@ -304,7 +304,7 @@ void segment::_parse_raw_data()
 
 void segment_object::_read_values(const unsigned char*& data, endianness e)
 {
-    if(_data_type.name == "tdstypeString")
+    if(_data_type.name == "tdsTypeString")
     {
         log::debug << "Reading string data" << log::endl;
         throw std::runtime_error("Reading string data not yet implemented");
