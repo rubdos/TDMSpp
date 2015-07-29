@@ -316,6 +316,7 @@ void segment_object::_read_values(const unsigned char*& data, endianness e)
         {
             _data_type.read_to(data + (i*_data_type.ctype_length), read_data + (i*_data_type.ctype_length));
         }
+        data += (_number_values*_data_type.ctype_length);
     }
 }
 
