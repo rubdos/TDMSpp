@@ -43,10 +43,10 @@ private:
     void _parse_metadata(const unsigned char* data, 
             segment* previous_segment);
     void _parse_raw_data();
-    void _calculate_chuncks();
+    void _calculate_chunks();
 
     size_t _offset;
-    size_t _chunck_count;
+    size_t _chunk_count;
 
     // Probably a map using enums performs faster.
     // Will only give a little performance though.

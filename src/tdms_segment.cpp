@@ -132,7 +132,8 @@ void segment::_parse_metadata(const unsigned char* data,
             throw std::runtime_error("kTocMetaData is set for segment, but"
                     "there is no previous segment.");
         this->_ordered_objects = previous_segment->_ordered_objects;
-        _calculate_chuncks();
+        _calculate_chunks();
+        return;
     }
     if(!this->_toc["kTocNewObjList"])
     {
@@ -205,9 +206,9 @@ void segment::_parse_metadata(const unsigned char* data,
         data = segment_object->_parse_metadata(data);
         obj->_previous_segment_object = segment_object;
     }
-    _calculate_chuncks();
+    _calculate_chunks();
 }
-void segment::_calculate_chuncks()
+void segment::_calculate_chunks()
 {
     // Work out the number of chunks the data is in, for cases
     // where the meta data doesn't change at all so there is no
