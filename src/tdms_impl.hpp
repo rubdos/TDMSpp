@@ -4,6 +4,7 @@
 #include <map>
 #include <cstdint>
 #include <functional>
+#include <memory>
 
 namespace TDMS
 {
@@ -56,7 +57,7 @@ private:
     size_t _next_segment_offset;
     size_t _raw_data_offset;
     size_t _num_chunks;
-    std::vector<segment::object*> _ordered_objects;
+    std::vector<std::shared_ptr<segment::object>> _ordered_objects;
 
     file* _parent_file;
 

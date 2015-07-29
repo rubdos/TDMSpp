@@ -55,6 +55,14 @@ int main(int argc, char** argv)
         for(TDMS::object* o : f)
         {
             std::cout << o->get_path() << std::endl;
+            if(options[PROPERTIES])
+            {
+                for(auto p: o->get_properties())
+                {
+                    std::cout << "  " << p.first << ": " << "value" << std::endl;
+                    // TODO: implement value for C++ usage.
+                }
+            }
         }
     }
 }

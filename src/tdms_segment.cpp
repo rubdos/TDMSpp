@@ -169,7 +169,7 @@ void segment::_parse_metadata(const unsigned char* data,
         }
         bool updating_existing = false;
 
-        segment::object* segment_object = nullptr;
+        std::shared_ptr<segment::object> segment_object(nullptr);
 
         if(!_toc["kTocNewObjList"])
         {
@@ -177,7 +177,7 @@ void segment::_parse_metadata(const unsigned char* data,
             // segment object list
             auto it = std::find_if(this->_ordered_objects.begin(),
                     this->_ordered_objects.end(),
-                    [obj](const segment::object* o){
+                    [obj](const std::shared_ptr<segment::object> o){
                         return (o->_tdms_object == obj);
                         // TODO: compare by value?
                         //       define an operator==() ?
@@ -194,11 +194,11 @@ void segment::_parse_metadata(const unsigned char* data,
             if(obj->_previous_segment_object != nullptr)
             {
                 log::debug << "Copying previous segment object" << log::endl;
-                segment_object = new segment::object(*obj->_previous_segment_object);
+                segment_object = std::make_shared<segment::object>(*obj->_previous_segment_object);
             }
             else
             {
-                segment_object = new segment::object(obj);
+                segment_object = std::shared_ptr<segment::object>(new segment::object(obj));
             }
             this->_ordered_objects.push_back(segment_object);
         }
@@ -220,7 +220,7 @@ void segment::_calculate_chuncks()
     std::for_each(
             _ordered_objects.begin(), 
             _ordered_objects.end(), 
-            [&data_size](segment_object* o)
+            [&data_size](std::shared_ptr<segment_object> o)
             {
                 if(o->_has_data)
                 {
@@ -321,9 +321,6 @@ void segment_object::_read_values(const unsigned char*& data, endianness e)
 
 segment::~segment()
 {
-    // Delete all TDMS segment objects
-    for(segment::object* _o : _ordered_objects)
-        delete _o;
 }
 
 

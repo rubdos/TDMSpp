@@ -115,7 +115,7 @@ private:
         _previous_segment_object = nullptr;
     }
     void _initialise_data();
-    segment_object* _previous_segment_object;
+    std::shared_ptr<segment_object> _previous_segment_object;
 
     const std::string _path;
     bool _has_data;
