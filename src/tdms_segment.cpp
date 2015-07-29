@@ -53,7 +53,7 @@ const std::map<uint32_t, const data_type_t> data_type_t::_tds_datatypes = {
     {         6, data_type_t("tdsTypeU16", 2, put_le_on_heap_generator<uint16_t>())},
     {         7, data_type_t("tdsTypeU32", 4, put_le_on_heap_generator<uint32_t>())},
     {         8, data_type_t("tdsTypeU64", 8, put_le_on_heap_generator<uint64_t>())},
-    {         9, data_type_t("tdsTypeSingleFloat", 4, not_implemented)},
+    {         9, data_type_t("tdsTypeSingleFloat", 4, put_on_heap_generator<float>(&read_le_float))},
     {        10, data_type_t("tdsTypeDoubleFloat", 8, put_on_heap_generator<double>(&read_le_double))},
     {        11, data_type_t("tdsTypeExtendedFloat", 0,not_implemented)},
     {        12, data_type_t("tdsTypeDoubleFloatWithUnit", 8, not_implemented)},

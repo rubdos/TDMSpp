@@ -43,4 +43,16 @@ double read_le_double(const unsigned char* p)
     //log::debug << "I read a double: " << a << log::endl;
     return a;
 }
+float read_le_float(const unsigned char* p)
+{
+    float a;
+    char* b = (char*)(float*)&a;
+    // TODO: doesn't work on LE systems.
+    // Solve with read_le template?
+    for(size_t i = 0; i < sizeof(float); ++i)
+    {
+        b[i] = p[i];
+    }
+    return a;
+}
 }
