@@ -97,6 +97,10 @@ public:
         virtual ~property();
     };
 
+    const std::string data_type()
+    {
+        return _data_type.name;
+    }
     const void* data()
     {
         return _data;
