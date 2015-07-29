@@ -101,6 +101,12 @@ public:
     {
         return _data_type.name;
     }
+
+    size_t bytes()
+    {
+        return _data_type.ctype_length * _number_values;
+    }
+
     const void* data()
     {
         return _data;
