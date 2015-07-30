@@ -29,8 +29,7 @@ std::function<void* (const unsigned char*, void*)> put_on_heap_generator(std::fu
 {
     return [f](const unsigned char* data, void* ptr)
     {
-        auto val = f(data);
-        memcpy(ptr, &val, sizeof(T));
+        *((T*)ptr) = f(data);
         return ptr;
     };
 }
