@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <ctime>
 #include <string>
+#include <string.h> // For memcpy
 #include "log.hpp"
 
 namespace TDMS
@@ -36,11 +37,7 @@ double read_le_double(const unsigned char* p)
     char* b = (char*)(double*)&a;
     // TODO: doesn't work on LE systems.
     // Solve with read_le template?
-    for(size_t i = 0; i < 8; ++i)
-    {
-        b[i] = p[i];
-    }
-    //log::debug << "I read a double: " << a << log::endl;
+    memcpy(b, p, sizeof(double));
     return a;
 }
 float read_le_float(const unsigned char* p)
@@ -49,10 +46,7 @@ float read_le_float(const unsigned char* p)
     char* b = (char*)(float*)&a;
     // TODO: doesn't work on LE systems.
     // Solve with read_le template?
-    for(size_t i = 0; i < sizeof(float); ++i)
-    {
-        b[i] = p[i];
-    }
+    memcpy(b, p, sizeof(float));
     return a;
 }
 }
