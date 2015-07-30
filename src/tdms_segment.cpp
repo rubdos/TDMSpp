@@ -25,7 +25,7 @@ const std::map<const std::string, int32_t> segment::_toc_properties =
 };
 
 template<typename T>
-std::function<void (const unsigned char*, void*)> put_on_heap_generator(std::function<T (const unsigned char*)> f)
+inline std::function<void (const unsigned char*, void*)> put_on_heap_generator(std::function<T (const unsigned char*)> f)
 {
     return [f](const unsigned char* data, void* ptr)
     {
