@@ -6,6 +6,7 @@
 #include <functional>
 #include <cstring>
 #include <memory>
+#include <iostream>
 
 namespace TDMS
 {
@@ -17,9 +18,11 @@ class data_type_t
 {
 public:
     typedef std::function<void* ()> parse_t;
+
     data_type_t(const data_type_t& dt)
         : name(dt.name),
           read_to(dt.read_to),
+          read_array_to(dt.read_array_to),
           length(dt.length),
           ctype_length(dt.ctype_length)
     {
@@ -29,12 +32,25 @@ public:
           length(0),
           ctype_length(0)
     {
+        _init_default_array_reader();
     }
     data_type_t(const std::string& _name, 
             const size_t _len,
             std::function<void (const unsigned char*, void*)> reader)
         : name(_name),
           read_to(reader),
+          length(_len),
+          ctype_length(_len)
+    {
+        _init_default_array_reader();
+    }
+    data_type_t(const std::string& _name, 
+            const size_t _len,
+            std::function<void (const unsigned char*, void*)> reader,
+            std::function<void (const unsigned char*, void*, size_t)> array_reader)
+        : name(_name),
+          read_to(reader),
+          read_array_to(array_reader),
           length(_len),
           ctype_length(_len)
     {
@@ -49,6 +65,7 @@ public:
           length(_len),
           ctype_length(_ctype_len)
     {
+        _init_default_array_reader();
     }
 
     bool is_valid() const
@@ -73,10 +90,22 @@ public:
         return d;
     }
     std::function<void (const unsigned char*, void*)> read_to;
+    std::function<void (const unsigned char*, void*, size_t)> read_array_to;
     size_t length;
     size_t ctype_length;
 
     static const std::map<uint32_t, const data_type_t> _tds_datatypes;
+private:
+    void _init_default_array_reader()
+    {
+        read_array_to = [this](const unsigned char* source, void* target, size_t number_values){
+            std::cout << "Doing iterative reading" << std::endl;
+            for(size_t i = 0; i < number_values; ++i)
+            {
+                this->read_to(source + (i*this->ctype_length), (void*)(((char*)target) + (i*this->ctype_length)));
+            }
+        };
+    }
 };
 
 class object

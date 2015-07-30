@@ -39,11 +39,19 @@ inline std::function<void (const unsigned char*, void*)> put_le_on_heap_generato
     return put_on_heap_generator<T>(&read_le<T>);
 }
 
+template<typename T>
+inline std::function<void (const unsigned char*, void*, size_t)> copy_array_reader_generator()
+{
+    return [](const unsigned char* source, void* tgt, size_t number_values){
+        memcpy(tgt, source, number_values*sizeof(T));
+    };
+}
+
 std::function<void (const unsigned char*, void*)> not_implemented = [](const unsigned char*, void*){throw std::runtime_error{"Reading this type is not implemented. Aborting"};};
 
 const std::map<uint32_t, const data_type_t> data_type_t::_tds_datatypes = {
     {         0, data_type_t("tdsTypeVoid", 0, not_implemented)},
-    {         1, data_type_t("tdsTypeI8",  1, put_le_on_heap_generator<int8_t>())},
+    {         1, data_type_t("tdsTypeI8",  1, put_le_on_heap_generator<int8_t>(), copy_array_reader_generator<int8_t>())},
     {         2, data_type_t("tdsTypeI16", 2, put_le_on_heap_generator<int16_t>())},
     {         3, data_type_t("tdsTypeI32", 4, put_le_on_heap_generator<int32_t>())},
     {         4, data_type_t("tdsTypeI64", 8, put_le_on_heap_generator<int32_t>())},
@@ -51,8 +59,8 @@ const std::map<uint32_t, const data_type_t> data_type_t::_tds_datatypes = {
     {         6, data_type_t("tdsTypeU16", 2, put_le_on_heap_generator<uint16_t>())},
     {         7, data_type_t("tdsTypeU32", 4, put_le_on_heap_generator<uint32_t>())},
     {         8, data_type_t("tdsTypeU64", 8, put_le_on_heap_generator<uint64_t>())},
-    {         9, data_type_t("tdsTypeSingleFloat", 4, put_on_heap_generator<float>(&read_le_float))},
-    {        10, data_type_t("tdsTypeDoubleFloat", 8, put_on_heap_generator<double>(&read_le_double))},
+    {         9, data_type_t("tdsTypeSingleFloat", 4, put_on_heap_generator<float>(&read_le_float), copy_array_reader_generator<float>())},
+    {        10, data_type_t("tdsTypeDoubleFloat", 8, put_on_heap_generator<double>(&read_le_double), copy_array_reader_generator<double>())},
     {        11, data_type_t("tdsTypeExtendedFloat", 0,not_implemented)},
     {        12, data_type_t("tdsTypeDoubleFloatWithUnit", 8, not_implemented)},
     {        13, data_type_t("tdsTypeExtendedFloatWithUnit", 0, not_implemented)},
@@ -311,10 +319,9 @@ void segment_object::_read_values(const unsigned char*& data, endianness e)
     else
     {
         unsigned char* read_data = ((unsigned char*)_tdms_object->_data) + _tdms_object->_data_insert_position;
-        for(size_t i = 0; i < _number_values; ++i)
-        {
-            _data_type.read_to(data + (i*_data_type.ctype_length), read_data + (i*_data_type.ctype_length));
-        }
+
+        _data_type.read_array_to(data, read_data, _number_values);
+
         _tdms_object->_data_insert_position += (_number_values*_data_type.ctype_length);
         data += (_number_values*_data_type.ctype_length);
     }
