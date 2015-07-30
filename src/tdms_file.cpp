@@ -109,4 +109,14 @@ object::property::~property()
     }
     value = nullptr;
 }
+void data_type_t::_init_default_array_reader()
+{
+    read_array_to = [this](const unsigned char* source, void* target, size_t number_values){
+        log::debug << "Doing iterative reading" << log::endl;
+        for(size_t i = 0; i < number_values; ++i)
+        {
+            this->read_to(source + (i*this->ctype_length), (void*)(((char*)target) + (i*this->ctype_length)));
+        }
+    };
+}
 }
