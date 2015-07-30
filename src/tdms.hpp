@@ -32,7 +32,7 @@ public:
     }
     data_type_t(const std::string& _name, 
             const size_t _len,
-            std::function<void* (const unsigned char*, void*)> reader)
+            std::function<void (const unsigned char*, void*)> reader)
         : name(_name),
           read_to(reader),
           length(_len),
@@ -43,7 +43,7 @@ public:
     data_type_t(const std::string& _name, 
             const size_t _len,
             const size_t _ctype_len,
-            std::function<void* (const unsigned char*, void*)> reader)
+            std::function<void (const unsigned char*, void*)> reader)
         : name(_name),
           read_to(reader),
           length(_len),
@@ -72,7 +72,7 @@ public:
         read_to(data, d);
         return d;
     }
-    std::function<void* (const unsigned char*, void*)> read_to;
+    std::function<void (const unsigned char*, void*)> read_to;
     size_t length;
     size_t ctype_length;
 

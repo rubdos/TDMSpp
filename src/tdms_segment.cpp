@@ -25,22 +25,21 @@ const std::map<const std::string, int32_t> segment::_toc_properties =
 };
 
 template<typename T>
-std::function<void* (const unsigned char*, void*)> put_on_heap_generator(std::function<T (const unsigned char*)> f)
+std::function<void (const unsigned char*, void*)> put_on_heap_generator(std::function<T (const unsigned char*)> f)
 {
     return [f](const unsigned char* data, void* ptr)
     {
         *((T*)ptr) = f(data);
-        return ptr;
     };
 }
 
 template<typename T>
-inline std::function<void* (const unsigned char*, void*)> put_le_on_heap_generator()
+inline std::function<void (const unsigned char*, void*)> put_le_on_heap_generator()
 {
     return put_on_heap_generator<T>(&read_le<T>);
 }
 
-std::function<void* (const unsigned char*, void*)> not_implemented = [](const unsigned char*, void*){return nullptr;};
+std::function<void (const unsigned char*, void*)> not_implemented = [](const unsigned char*, void*){throw std::runtime_error{"Reading this type is not implemented. Aborting"};};
 
 const std::map<uint32_t, const data_type_t> data_type_t::_tds_datatypes = {
     {         0, data_type_t("tdsTypeVoid", 0, not_implemented)},
