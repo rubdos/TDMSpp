@@ -111,11 +111,13 @@ object::property::~property()
 }
 void data_type_t::_init_default_array_reader()
 {
-    read_array_to = [this](const unsigned char* source, void* target, size_t number_values){
+    auto read_to = this->read_to;
+    auto ctype_length = this->ctype_length;
+    read_array_to = [read_to, ctype_length](const unsigned char* source, void* target, size_t number_values){
         log::debug << "Doing iterative reading" << log::endl;
         for(size_t i = 0; i < number_values; ++i)
         {
-            this->read_to(source + (i*this->ctype_length), (void*)(((char*)target) + (i*this->ctype_length)));
+            read_to(source + (i*ctype_length), (void*)(((char*)target) + (i*ctype_length)));
         }
     };
 }
